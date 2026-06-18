@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brandsparkx - AI Project Closure Report Generator</title>
+    <meta name="description" content="Generate structured enterprise project closure reports from deliverables, client feedback, and lessons learned using AI.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <!-- Header / Navbar -->
+    <header class="navbar-header">
+        <div class="nav-container">
+            <a href="#home" class="brand-logo" id="nav-logo" aria-label="Brandsparkx Home">
+                <div class="logo-icon">
+                    <!-- Brandsparkx Monogram Logo -->
+                    <svg width="32" height="32" viewBox="0 0 100 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M 62 6 L 64.5 16 L 74.5 18.5 L 64.5 21 L 62 31 L 59.5 21 L 49.5 18.5 L 59.5 16 L 62 6 Z" fill="#8D99AE" />
+                        <rect x="74" y="6" width="3" height="3" fill="#8D99AE" />
+                        <rect x="80" y="12" width="3" height="3" fill="#FFFFFF" />
+                        <rect x="74" y="18" width="3" height="3" fill="#FFFFFF" />
+                        <path d="M 20 20 H 46 C 54 20 58 24 58 31 C 58 36 54 39 46 40 C 55 41 60 45 60 53 C 60 61 54 64 44 64 H 20 Z M 30 26 V 36 H 44 C 47 36 49 35 49 32 C 49 29 47 26 44 26 Z M 30 44 V 58 H 45 C 48 58 50 56 50 53 C 50 50 48 44 45 44 Z" fill="#FFFFFF" />
+                        <path d="M46,40 L72,64 L64,64 L40,40 L46,40 Z" fill="#FFFFFF"/>
+                        <path d="M72,20 L44,64 L52,64 L78,20 H72 Z" fill="#8D99AE"/>
+                    </svg>
+                </div>
+                <span class="brand-name">BRANDSPARKX</span>
+            </a>
+            
+            <nav class="nav-links" id="main-nav" aria-label="Main Navigation">
+                <a href="#home" class="nav-link active">Home</a>
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#workflow" class="nav-link">Workflow</a>
+                <a href="#dashboard" class="nav-link">Dashboard</a>
+                <a href="#analytics" class="nav-link">Analytics</a>
+                <a href="#contact" class="nav-link">Contact</a>
+            </nav>
+
+            <div class="nav-actions">
+                <a href="#dashboard" class="btn btn-primary nav-btn">Generate Report</a>
+                <button class="mobile-toggle" id="mobile-menu-btn" aria-label="Toggle Navigation Menu">
+                    <i data-lucide="menu"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Dropdown Menu -->
+        <div class="mobile-menu" id="mobile-menu">
+            <a href="#home" class="mobile-link">Home</a>
+            <a href="#features" class="mobile-link">Features</a>
+            <a href="#workflow" class="mobile-link">Workflow</a>
+            <a href="#dashboard" class="mobile-link">Dashboard</a>
+            <a href="#analytics" class="mobile-link">Analytics</a>
+            <a href="#contact" class="mobile-link">Contact</a>
+            <a href="#dashboard" class="btn btn-primary mobile-btn">Generate Report</a>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="home" class="hero-section">
+            <div class="hero-container">
+                <div class="hero-content">
+                    <div class="hero-badge">
+                        <i data-lucide="briefcase"></i>
+                        <span>Enterprise Handoff Utility</span>
+                    </div>
+                    <h1 class="hero-title">AI Project Closure Report Generator</h1>
+                    <p class="hero-subtitle">
+                        Generate structured project closure reports from completed deliverables, client feedback, and lessons learned using AI.
+                    </p>
+                    <div class="hero-buttons">
+                        <a href="#dashboard" class="btn btn-primary btn-large">
+                            <i data-lucide="plus"></i> Generate Report
+                        </a>
+                        <a href="#analytics" class="btn btn-secondary btn-large">
+                            <i data-lucide="bar-chart-2"></i> View Dashboard
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Scroll Indicator -->
+                <div class="scroll-indicator">
+                    <a href="#dashboard" class="scroll-link" aria-label="Scroll to Workspace">
+                        <span>Workspace</span>
+                        <i data-lucide="chevron-down"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Three-Panel Dashboard Workspace Section -->
+        <section id="dashboard" class="dashboard-section">
+            <div class="container-fluid">
+                <div class="section-header text-center">
+                    <h2>Enterprise Workspace</h2>
+                    <p class="section-subtitle">Core AI generator engine for project managers and PMO teams.</p>
+                </div>
+
+                <div class="dashboard-wrapper">
+                    <!-- LEFT PANEL: Input Form -->
+                    <div class="db-panel db-input-panel">
+                        <div class="panel-header">
+                            <i data-lucide="edit-3" class="panel-icon"></i>
+                            <h3>Project Input Form</h3>
+                        </div>
+                        
+                        <form id="project-closure-form" class="closure-form">
+                            <div class="form-group">
+                                <label for="project-name">Project Name</label>
+                                <input type="text" id="project-name" placeholder="e.g., Q3 Cloud Migration" required>
+                                <span class="field-error" id="err-project-name"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="project-manager">Project Manager</label>
+                                <input type="text" id="project-manager" placeholder="e.g., Sarah Jenkins" required>
+                                <span class="field-error" id="err-project-manager"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="project-deliverables">Deliverables Achieved</label>
+                                <textarea id="project-deliverables" rows="4" placeholder="List core milestones, deployments, or artifacts completed..." required></textarea>
+                                <div class="textarea-footer">
+                                    <span class="char-count" id="count-deliverables">0 characters</span>
+                                    <span class="field-error" id="err-project-deliverables"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="client-feedback">Client Feedback</label>
+                                <textarea id="client-feedback" rows="3" placeholder="Direct quotes, reviews, or stakeholder satisfaction notes..." required></textarea>
+                                <div class="textarea-footer">
+                                    <span class="char-count" id="count-feedback">0 characters</span>
+                                    <span class="field-error" id="err-client-feedback"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="lessons-learned">Lessons Learned & Hurdles</label>
+                                <textarea id="lessons-learned" rows="3" placeholder="Challenges faced, technical bottlenecks, and workflow improvements..." required></textarea>
+                                <div class="textarea-footer">
+                                    <span class="char-count" id="count-lessons">0 characters</span>
+                                    <span class="field-error" id="err-lessons-learned"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-actions-row">
+                                <button type="button" class="btn btn-secondary" id="load-sample-btn">
+                                    <i data-lucide="file-text"></i> Load Sample Data
+                                </button>
+                                <button type="submit" class="btn btn-primary" id="submit-btn">
+                                    <i data-lucide="wand-2"></i> Generate Report
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- CENTER PANEL: Generated AI Report -->
+                    <div class="db-panel db-output-panel">
+                        <div class="panel-header space-between">
+                            <div class="flex-align-center">
+                                <i data-lucide="file-check" class="panel-icon"></i>
+                                <h3>Generated AI Report</h3>
+                            </div>
+                            <span class="status-badge status-idle" id="report-status-tag">Ready</span>
+                        </div>
+
+                        <div class="output-viewer" id="output-viewer-screen">
+                            
+                            <!-- Empty State (Pre-generation) -->
+                            <div class="state-container active-state" id="state-pre-gen">
+                                <div class="empty-state-visual">
+                                    <i data-lucide="sparkles"></i>
+                                </div>
+                                <h4>No Report Generated</h4>
+                                <p>Provide project details, deliverables, and lessons in the form on the left, then click <strong>"Generate Report"</strong> to compile a structured closure report.</p>
+                            </div>
+
+                            <!-- Processing State -->
+                            <div class="state-container" id="state-generating" style="display: none;">
+                                <div class="enterprise-loader">
+                                    <div class="spinner"></div>
+                                    <i data-lucide="cpu" class="loader-icon"></i>
+                                </div>
+                                <h4>Analyzing Closure Metadata...</h4>
+                                <p class="loader-subtext">Constructing AI prompt, grading milestones, and structuring sections...</p>
+                                
+                                <div class="processing-steps">
+                                    <div class="step-line active" id="step-1">> Constructing structured prompt contexts...</div>
+                                    <div class="step-line" id="step-2">> Synthesizing deliverables checklist...</div>
+                                    <div class="step-line" id="step-3">> Grading client sentiment and feedback metrics...</div>
+                                    <div class="step-line" id="step-4">> Generating final project executive handoff summary...</div>
+                                </div>
+                            </div>
+
+                            <!-- Ready Report Output -->
+                            <div class="state-container report-content-view" id="state-report-ready" style="display: none;">
+                                <div class="report-meta-header">
+                                    <div>
+                                        <h2 class="report-project-title" id="rep-proj-title">Project Name</h2>
+                                        <p class="report-pm-label"><strong>Manager:</strong> <span id="rep-proj-manager">Sarah Jenkins</span></p>
+                                    </div>
+                                    <div class="meta-details text-right">
+                                        <p><strong>System ID:</strong> <span id="rep-proj-id">BSP-4029-AI</span></p>
+                                        <p><strong>Created:</strong> <span id="rep-proj-date">2026-06-18</span></p>
+                                    </div>
+                                </div>
+
+                                <div class="divider"></div>
+
+                                <!-- Dynamic Report Text -->
+                                <div class="report-body-text" id="report-text-container">
+                                    <!-- Injected dynamically by JavaScript -->
+                                </div>
+                            </div>
+
+                            <!-- Error State -->
+                            <div class="state-container error-state" id="state-error" style="display: none;">
+                                <div class="error-visual">
+                                    <i data-lucide="alert-octagon"></i>
+                                </div>
+                                <h4>Report Generation Failed</h4>
+                                <p id="error-message-text">The AI engine encountered a connection timeout. Please check your network and try again.</p>
+                                <button type="button" class="btn btn-secondary" id="retry-btn">Retry Generation</button>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- RIGHT PANEL: History & Utilities -->
+                    <div class="db-panel db-sidebar-panel">
+                        
+                        <!-- Utility Segment: Actions & Export -->
+                        <div class="sidebar-block border-bottom">
+                            <div class="panel-header compact">
+                                <i data-lucide="sliders" class="panel-icon"></i>
+                                <h3>Export & Options</h3>
+                            </div>
+                            <div class="actions-grid">
+                                <button class="btn btn-secondary" id="copy-report-btn" disabled>
+                                    <i data-lucide="copy"></i> Copy Text
+                                </button>
+                                <button class="btn btn-secondary" id="export-pdf-btn" disabled>
+                                    <i data-lucide="download"></i> Export PDF
+                                </button>
+                                <button class="btn btn-secondary btn-block" id="regenerate-report-btn" disabled>
+                                    <i data-lucide="refresh-cw"></i> Regenerate Response
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Utility Segment: Rating System -->
+                        <div class="sidebar-block border-bottom" id="rating-sidebar-block">
+                            <div class="panel-header compact">
+                                <i data-lucide="award" class="panel-icon"></i>
+                                <h3>Quality Rating System</h3>
+                            </div>
+                            <div class="rating-box disabled-block" id="rating-widget">
+                                <p class="widget-desc">Evaluate the clarity, structure, and insights of this generated report.</p>
+                                <div class="star-rating" id="star-rating" role="radiogroup" aria-label="Rate report quality out of 5 stars">
+                                    <button type="button" class="star-btn" data-value="1" aria-label="1 star"><i data-lucide="star"></i></button>
+                                    <button type="button" class="star-btn" data-value="2" aria-label="2 stars"><i data-lucide="star"></i></button>
+                                    <button type="button" class="star-btn" data-value="3" aria-label="3 stars"><i data-lucide="star"></i></button>
+                                    <button type="button" class="star-btn" data-value="4" aria-label="4 stars"><i data-lucide="star"></i></button>
+                                    <button type="button" class="star-btn" data-value="5" aria-label="5 stars"><i data-lucide="star"></i></button>
+                                </div>
+                                <div class="form-group margin-top-sm">
+                                    <textarea id="rating-comment" rows="2" placeholder="Optional comments on AI quality..."></textarea>
+                                </div>
+                                <button type="button" class="btn btn-primary btn-block btn-small" id="submit-rating-btn">Submit Quality Rating</button>
+                            </div>
+                        </div>
+
+                        <!-- Utility Segment: Report History -->
+                        <div class="sidebar-block grow-block">
+                            <div class="panel-header compact">
+                                <i data-lucide="history" class="panel-icon"></i>
+                                <h3>Report History</h3>
+                            </div>
+                            <div class="history-list-container">
+                                <div class="history-list" id="report-history-container">
+                                    <!-- Rendered dynamically -->
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="features-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <div class="section-badge mx-auto">
+                        <i data-lucide="layers"></i>
+                        <span>System Capabilities</span>
+                    </div>
+                    <h2>Engine Features</h2>
+                    <p class="section-subtitle">A standardized suite built for PMO compliance, reporting quality, and data archiving.</p>
+                </div>
+
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i data-lucide="cpu"></i></div>
+                        <h3>AI Report Generation</h3>
+                        <p>Transforms raw inputs, checklists, and messy team logs into a unified, formal corporate summary.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i data-lucide="list-checks"></i></div>
+                        <h3>Structured Summary Creation</h3>
+                        <p>Extracts unstructured project notes into clean, bulleted summaries of goals and final deliverables.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i data-lucide="brain"></i></div>
+                        <h3>Key Insights Extraction</h3>
+                        <p>Highlights team bottlenecks, identifies core risk indicators, and grades overall client satisfaction sentiment.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i data-lucide="folder-git"></i></div>
+                        <h3>Report History</h3>
+                        <p>Maintains a local chronological record of all project closures with search, reload, and deletion functions.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i data-lucide="file-text"></i></div>
+                        <h3>PDF Export</h3>
+                        <p>Generates high-fidelity corporate print sheets and PDF assets directly using native browser layout prints.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i data-lucide="refresh-cw"></i></div>
+                        <h3>Regenerate Response</h3>
+                        <p>Allows managers to re-process inputs, adjusting context weightings to fetch alternative summary formats.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i data-lucide="star"></i></div>
+                        <h3>Quality Rating System</h3>
+                        <p>Enables structural rating from 1 to 5 stars, log-scoring feedback to benchmark AI report accuracy.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i data-lucide="bar-chart-3"></i></div>
+                        <h3>Admin Analytics</h3>
+                        <p>Monitors system usage trends, rating distributions, and average satisfaction scores in a dashboard layout.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Workflow Section -->
+        <section id="workflow" class="workflow-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <div class="section-badge mx-auto">
+                        <i data-lucide="activity"></i>
+                        <span>Step-by-Step Handoff</span>
+                    </div>
+                    <h2>Standard Closure Workflow</h2>
+                    <p class="section-subtitle">How project managers standardise and build closure deliverables in eight structured steps.</p>
+                </div>
+
+                <div class="workflow-grid">
+                    <div class="workflow-step">
+                        <div class="step-num">01</div>
+                        <h4>Enter Project Information</h4>
+                        <p>Supply the core project name and identify the project manager responsible for final handoffs.</p>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="step-num">02</div>
+                        <h4>Add Deliverables, Feedback, and Lessons</h4>
+                        <p>Paste milestones, direct quotes from client reviews, and lessons learned during execution.</p>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="step-num">03</div>
+                        <h4>AI Processes Information</h4>
+                        <p>The Brandsparkx model reads the fields, segments items, and formats headings based on guidelines.</p>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="step-num">04</div>
+                        <h4>Generate Structured Report</h4>
+                        <p>Receive a fully formatted executive report containing deliverables, sentiment indicators, and hurdles.</p>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="step-num">05</div>
+                        <h4>Save to History</h4>
+                        <p>The system commits inputs and AI outputs to the local PMO archive for historical search.</p>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="step-num">06</div>
+                        <h4>Rate Output Quality</h4>
+                        <p>Grade the generation output using the 1-5 star module, noting any adjustments needed.</p>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="step-num">07</div>
+                        <h4>Regenerate if Needed</h4>
+                        <p>Refine inputs or trigger a recalculation to adjust report parameters or phrasing.</p>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="step-num">08</div>
+                        <h4>Export Report</h4>
+                        <p>Download the formatted report as a PDF handover file or copy markdown blocks to the corporate wiki.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Analytics Section -->
+        <section id="analytics" class="analytics-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <div class="section-badge mx-auto">
+                        <i data-lucide="bar-chart-2"></i>
+                        <span>Operational Insights</span>
+                    </div>
+                    <h2>Admin Analytics</h2>
+                    <p class="section-subtitle">Usage logs and output quality trends for Brandsparkx administrators.</p>
+                </div>
+
+                <div class="analytics-grid">
+                    <!-- Left: Counter Cards Placeholder -->
+                    <div class="analytics-layout-panel">
+                        <h3>Usage Analytics Layout</h3>
+                        <div class="metrics-grid">
+                            <div class="metric-card">
+                                <span class="metric-label">Total Reports Generated</span>
+                                <span class="metric-value" id="admin-total-reports">--</span>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-label">Average Quality Rating</span>
+                                <span class="metric-value" id="admin-avg-rating">--</span>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-label">Submit Rate (Feedback)</span>
+                                <span class="metric-value" id="admin-feedback-rate">--</span>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-label">PM Active Users</span>
+                                <span class="metric-value" id="admin-active-pms">--</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Quality Rating Overview Placeholder -->
+                    <div class="analytics-layout-panel">
+                        <h3>Quality Rating Overview</h3>
+                        <div class="rating-distribution-placeholder" id="analytics-rating-placeholder">
+                            <div class="empty-state-box">
+                                <i data-lucide="award"></i>
+                                <p>No quality rating data available.</p>
+                                <span class="sub-placeholder">Submit ratings in the workspace sidebar to display metrics.</span>
+                            </div>
+                            <!-- Will render real elements dynamically if data exists -->
+                        </div>
+                    </div>
+
+                    <!-- Bottom Full: Trend Charts Layout Placeholder -->
+                    <div class="analytics-layout-panel full-width">
+                        <h3>Report Generation Trends</h3>
+                        <div class="chart-container-placeholder" id="analytics-chart-placeholder">
+                            <div class="empty-state-box">
+                                <i data-lucide="trending-up"></i>
+                                <p>Awaiting report volume trends...</p>
+                                <span class="sub-placeholder">Monthly trends and generation velocity charts will populate here when closure reports are saved.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="contact-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <div class="section-badge mx-auto">
+                        <i data-lucide="mail"></i>
+                        <span>Get in Touch</span>
+                    </div>
+                    <h2>Brandsparkx Contact Form</h2>
+                    <p class="section-subtitle">Send feedback, query enterprise access, or request feature extensions.</p>
+                </div>
+
+                <div class="contact-card-wrapper">
+                    <div class="contact-info-panel">
+                        <h3>Brandsparkx PMO Solutions</h3>
+                        <p>For custom CRM integration, SQL database setups, or custom template architectures, reach out to our IT support office.</p>
+                        
+                        <div class="contact-meta-list">
+                            <div class="meta-item">
+                                <i data-lucide="map-pin"></i>
+                                <span>Hyderabad IT Corridor, Telangana, India</span>
+                            </div>
+                            <div class="meta-item">
+                                <i data-lucide="mail"></i>
+                                <span>pmo-support@brandsparkx.com</span>
+                            </div>
+                            <div class="meta-item">
+                                <i data-lucide="globe"></i>
+                                <span>brandsparkx.com</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="contact-form-panel">
+                        <form id="brandsparkx-contact-form" class="contact-form">
+                            <div class="form-row">
+                                <div class="form-group half">
+                                    <label for="contact-name">Full Name</label>
+                                    <input type="text" id="contact-name" placeholder="John Doe" required>
+                                </div>
+                                <div class="form-group half">
+                                    <label for="contact-email">Corporate Email</label>
+                                    <input type="email" id="contact-email" placeholder="john.doe@brandsparkx.com" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="contact-subject">Subject</label>
+                                <input type="text" id="contact-subject" placeholder="e.g. Requesting Custom SSO Template Integration" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="contact-message">Message</label>
+                                <textarea id="contact-message" rows="4" placeholder="Detail your operational query or integration specs..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="contact-submit-btn">Send Message</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer-wrapper">
+        <div class="footer-container">
+            <div class="footer-brand-side">
+                <a href="#home" class="brand-logo footer-logo">
+                    <div class="logo-icon">
+                        <svg width="24" height="24" viewBox="0 0 100 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M 62 6 L 64.5 16 L 74.5 18.5 L 64.5 21 L 62 31 L 59.5 21 L 49.5 18.5 L 59.5 16 L 62 6 Z" fill="#8D99AE" />
+                            <rect x="74" y="6" width="3" height="3" fill="#8D99AE" />
+                            <rect x="80" y="12" width="3" height="3" fill="#FFFFFF" />
+                            <rect x="74" y="18" width="3" height="3" fill="#FFFFFF" />
+                            <path d="M 20 20 H 46 C 54 20 58 24 58 31 C 58 36 54 39 46 40 C 55 41 60 45 60 53 C 60 61 54 64 44 64 H 20 Z M 30 26 V 36 H 44 C 47 36 49 35 49 32 C 49 29 47 26 44 26 Z M 30 44 V 58 H 45 C 48 58 50 56 50 53 C 50 50 48 44 45 44 Z" fill="#FFFFFF" />
+                            <path d="M46,40 L72,64 L64,64 L40,40 L46,40 Z" fill="#FFFFFF"/>
+                            <path d="M72,20 L44,64 L52,64 L78,20 H72 Z" fill="#8D99AE"/>
+                        </svg>
+                    </div>
+                    <span class="brand-name">BRANDSPARKX</span>
+                </a>
+                <p class="footer-desc">Professional corporate closing solutions for modern agile PMOs. Transform chaotic project files into structured assets.</p>
+            </div>
+            
+            <div class="footer-links-side">
+                <div class="footer-links-col">
+                    <h4>Quick Links</h4>
+                    <a href="#home">Home</a>
+                    <a href="#features">Features</a>
+                    <a href="#workflow">Workflow</a>
+                    <a href="#dashboard">Dashboard</a>
+                    <a href="#analytics">Analytics</a>
+                    <a href="#contact">Contact</a>
+                </div>
+                <div class="footer-links-col">
+                    <h4>Operations Info</h4>
+                    <p class="contact-info-text"><i data-lucide="mail"></i> info@brandsparkx.com</p>
+                    <p class="contact-info-text"><i data-lucide="phone"></i> +91 40 4823 2342</p>
+                    <p class="contact-info-text"><i data-lucide="map-pin"></i> Hyderabad, India</p>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="footer-bottom-container">
+                <p>&copy; 2026 Brandsparkx. All rights reserved.</p>
+                <div class="footer-bottom-links">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notification (Injected dynamically) -->
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+    <!-- Main JavaScript Logic -->
+    <script type="module" src="app.js"></script>
+</body>
+</html>
