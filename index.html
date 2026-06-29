@@ -13,6 +13,12 @@
     <link rel="stylesheet" href="style.css">
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Inline Auth Guard -->
+    <script>
+        if (sessionStorage.getItem('brandsparkx_logged_in') !== 'true') {
+            window.location.replace('login.html');
+        }
+    </script>
 </head>
 <body>
 
@@ -46,6 +52,7 @@
 
             <div class="nav-actions">
                 <a href="#dashboard" class="btn btn-primary nav-btn">Generate Report</a>
+                <button id="logout-btn" class="btn btn-secondary nav-btn"><i data-lucide="log-out"></i> Logout</button>
                 <button class="mobile-toggle" id="mobile-menu-btn" aria-label="Toggle Navigation Menu">
                     <i data-lucide="menu"></i>
                 </button>
@@ -60,6 +67,7 @@
             <a href="#dashboard" class="mobile-link">Dashboard</a>
             <a href="#analytics" class="mobile-link">Analytics</a>
             <a href="#contact" class="mobile-link">Contact</a>
+            <a href="#" id="mobile-logout-btn" class="mobile-link"><i data-lucide="log-out"></i> Logout</a>
             <a href="#dashboard" class="btn btn-primary mobile-btn">Generate Report</a>
         </div>
     </header>

@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initFormCounters();
     initDashboard();
     initContactForm();
+    initAuthLogout();
 });
 
 // --- TOAST NOTIFICATIONS ---
@@ -42,44 +43,53 @@ function initNavbar() {
 
     // Sticky Scroll Header Effect
     window.addEventListener('scroll', () => {
-        if (window.scrollY > 50) {
-            header.classList.add('scrolled');
-        } else {
-            header.classList.remove('scrolled');
+        if (header) {
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
         }
         updateActiveLink();
     });
 
     // Mobile Menu Toggle
-    mobileMenuBtn.addEventListener('click', () => {
-        const isOpen = mobileMenu.style.display === 'flex';
-        mobileMenu.style.display = isOpen ? 'none' : 'flex';
-        
-        const icon = mobileMenuBtn.querySelector('i');
-        if (icon) {
-            icon.setAttribute('data-lucide', isOpen ? 'menu' : 'x');
-            lucide.createIcons();
-        }
-    });
-
-    // Close Mobile Menu on Link Click
-    navLinks.forEach(link => {
-        link.addEventListener('click', () => {
-            mobileMenu.style.display = 'none';
+    if (mobileMenuBtn && mobileMenu) {
+        mobileMenuBtn.addEventListener('click', () => {
+            const isOpen = mobileMenu.style.display === 'flex';
+            mobileMenu.style.display = isOpen ? 'none' : 'flex';
+            
             const icon = mobileMenuBtn.querySelector('i');
             if (icon) {
-                icon.setAttribute('data-lucide', 'menu');
+                icon.setAttribute('data-lucide', isOpen ? 'menu' : 'x');
                 lucide.createIcons();
             }
         });
-    });
+    }
+
+    // Close Mobile Menu on Link Click
+    if (mobileMenuBtn && mobileMenu) {
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.style.display = 'none';
+                const icon = mobileMenuBtn.querySelector('i');
+                if (icon) {
+                    icon.setAttribute('data-lucide', 'menu');
+                    lucide.createIcons();
+                }
+            });
+        });
+    }
 
     // Active link highlighting on scroll
     function updateActiveLink() {
         const scrollPos = window.scrollY + 120;
         let activeId = 'home';
 
-        document.querySelectorAll('section').forEach(section => {
+        const sections = document.querySelectorAll('section');
+        if (sections.length === 0) return;
+
+        sections.forEach(section => {
             const top = section.offsetTop;
             const height = section.offsetHeight;
             const id = section.getAttribute('id');
@@ -96,6 +106,9 @@ function initNavbar() {
             }
         });
     }
+
+    // Call once initially to highlight active link on load
+    updateActiveLink();
 }
 
 // --- FORM CHARACTER COUNTERS ---
@@ -121,6 +134,9 @@ function initFormCounters() {
 // --- CORE DASHBOARD INTERACTION ---
 function initDashboard() {
     const form = document.getElementById('project-closure-form');
+    // Exit early if form is not found (meaning we are not on the dashboard index page)
+    if (!form) return;
+
     const loadSampleBtn = document.getElementById('load-sample-btn');
     const submitBtn = document.getElementById('submit-btn');
     const retryBtn = document.getElementById('retry-btn');
@@ -152,9 +168,10 @@ function initDashboard() {
     // State parameters
     let activeReport = null;
     let selectedRatingValue = 0;
+    let highlightStars = function(value) {}; // scope binding for strict modules access
     
     // persist history database in localStorage
-    let reportsHistory = JSON.parse(localStorage.getItem('brandsparkx_reports_history') || '[]');
+    let reportsHistory = JSON.parse(localStorage.getItem('brandsparkx_reports_history'));
     
     // Sample pre-filled data object
     const sampleData = {
@@ -165,25 +182,33 @@ function initDashboard() {
         lessons: "1. Legacy database schema mapping was more fragmented than expected, requiring 14 hours of manual cleaning.\n2. Early user acceptance tests prevented several dashboard integration glitches."
     };
 
-    // Initialize application state
-    renderHistory();
-    updateAnalytics();
-    
     // Load Sample Click Event
-    loadSampleBtn.addEventListener('click', () => {
-        document.getElementById('project-name').value = sampleData.name;
-        document.getElementById('project-manager').value = sampleData.manager;
-        document.getElementById('project-deliverables').value = sampleData.deliverables;
-        document.getElementById('client-feedback').value = sampleData.feedback;
-        document.getElementById('lessons-learned').value = sampleData.lessons;
-        
-        // Trigger character counter updates manually
-        document.getElementById('count-deliverables').innerText = `${sampleData.deliverables.length} characters`;
-        document.getElementById('count-feedback').innerText = `${sampleData.feedback.length} characters`;
-        document.getElementById('count-lessons').innerText = `${sampleData.lessons.length} characters`;
-        
-        showToast("Sample project closure data loaded.", "success");
-    });
+    if (loadSampleBtn) {
+        loadSampleBtn.addEventListener('click', () => {
+            const nameEl = document.getElementById('project-name');
+            const managerEl = document.getElementById('project-manager');
+            const deliverablesEl = document.getElementById('project-deliverables');
+            const feedbackEl = document.getElementById('client-feedback');
+            const lessonsEl = document.getElementById('lessons-learned');
+
+            if (nameEl) nameEl.value = sampleData.name;
+            if (managerEl) managerEl.value = sampleData.manager;
+            if (deliverablesEl) deliverablesEl.value = sampleData.deliverables;
+            if (feedbackEl) feedbackEl.value = sampleData.feedback;
+            if (lessonsEl) lessonsEl.value = sampleData.lessons;
+            
+            // Trigger character counter updates manually
+            const countDeliv = document.getElementById('count-deliverables');
+            const countFeed = document.getElementById('count-feedback');
+            const countLess = document.getElementById('count-lessons');
+
+            if (countDeliv) countDeliv.innerText = `${sampleData.deliverables.length} characters`;
+            if (countFeed) countFeed.innerText = `${sampleData.feedback.length} characters`;
+            if (countLess) countLess.innerText = `${sampleData.lessons.length} characters`;
+            
+            showToast("Sample project closure data loaded.", "success");
+        });
+    }
 
     // Form Submission / Report Generation
     form.addEventListener('submit', (e) => {
@@ -191,20 +216,24 @@ function initDashboard() {
         runGenerationPipeline();
     });
 
-    retryBtn.addEventListener('click', () => {
-        runGenerationPipeline();
-    });
+    if (retryBtn) {
+        retryBtn.addEventListener('click', () => {
+            runGenerationPipeline();
+        });
+    }
 
-    regenerateBtn.addEventListener('click', () => {
-        runGenerationPipeline();
-    });
+    if (regenerateBtn) {
+        regenerateBtn.addEventListener('click', () => {
+            runGenerationPipeline();
+        });
+    }
 
     function runGenerationPipeline() {
-        const nameVal = document.getElementById('project-name').value.trim();
-        const managerVal = document.getElementById('project-manager').value.trim();
-        const deliverablesVal = document.getElementById('project-deliverables').value.trim();
-        const feedbackVal = document.getElementById('client-feedback').value.trim();
-        const lessonsVal = document.getElementById('lessons-learned').value.trim();
+        const nameVal = document.getElementById('project-name')?.value.trim() || "";
+        const managerVal = document.getElementById('project-manager')?.value.trim() || "";
+        const deliverablesVal = document.getElementById('project-deliverables')?.value.trim() || "";
+        const feedbackVal = document.getElementById('client-feedback')?.value.trim() || "";
+        const lessonsVal = document.getElementById('lessons-learned')?.value.trim() || "";
 
         if (!nameVal || !managerVal || !deliverablesVal || !feedbackVal || !lessonsVal) {
             showToast("Please complete all required fields.", "error");
@@ -212,19 +241,21 @@ function initDashboard() {
         }
 
         // Show generating state loader
-        statePreGen.style.display = 'none';
-        stateReportReady.style.display = 'none';
-        stateError.style.display = 'none';
-        stateGenerating.style.display = 'flex';
+        if (statePreGen) statePreGen.style.display = 'none';
+        if (stateReportReady) stateReportReady.style.display = 'none';
+        if (stateError) stateError.style.display = 'none';
+        if (stateGenerating) stateGenerating.style.display = 'flex';
         
-        reportStatusTag.innerText = "Analyzing";
-        reportStatusTag.className = "status-badge status-generating";
+        if (reportStatusTag) {
+            reportStatusTag.innerText = "Analyzing";
+            reportStatusTag.className = "status-badge status-generating";
+        }
         
         // Reset sidebar actions
-        copyBtn.disabled = true;
-        exportPdfBtn.disabled = true;
-        regenerateBtn.disabled = true;
-        ratingWidget.classList.add('disabled-block');
+        if (copyBtn) copyBtn.disabled = true;
+        if (exportPdfBtn) exportPdfBtn.disabled = true;
+        if (regenerateBtn) regenerateBtn.disabled = true;
+        if (ratingWidget) ratingWidget.classList.add('disabled-block');
         resetRatingWidget();
 
         // Sequence simulation logs
@@ -236,21 +267,23 @@ function initDashboard() {
         ];
 
         steps.forEach((step, index) => {
-            step.className = index === 0 ? "step-line active" : "step-line";
+            if (step) {
+                step.className = index === 0 ? "step-line active" : "step-line";
+            }
         });
 
         // Simulate multi-step compilation
         setTimeout(() => {
-            steps[0].className = "step-line";
-            steps[1].className = "step-line active";
+            if (steps[0]) steps[0].className = "step-line";
+            if (steps[1]) steps[1].className = "step-line active";
             
             setTimeout(() => {
-                steps[1].className = "step-line";
-                steps[2].className = "step-line active";
+                if (steps[1]) steps[1].className = "step-line";
+                if (steps[2]) steps[2].className = "step-line active";
                 
                 setTimeout(() => {
-                    steps[2].className = "step-line";
-                    steps[3].className = "step-line active";
+                    if (steps[2]) steps[2].className = "step-line";
+                    if (steps[3]) steps[3].className = "step-line active";
                     
                     setTimeout(() => {
                         // Success completion
@@ -264,11 +297,13 @@ function initDashboard() {
     // Compile actual report and display
     function compileReport(name, manager, deliverables, feedback, lessons) {
         // Hide loader, show report view
-        stateGenerating.style.display = 'none';
-        stateReportReady.style.display = 'flex';
+        if (stateGenerating) stateGenerating.style.display = 'none';
+        if (stateReportReady) stateReportReady.style.display = 'flex';
         
-        reportStatusTag.innerText = "Completed";
-        reportStatusTag.className = "status-badge status-success";
+        if (reportStatusTag) {
+            reportStatusTag.innerText = "Completed";
+            reportStatusTag.className = "status-badge status-success";
+        }
 
         const sysId = `BSP-${Math.floor(1000 + Math.random() * 9000)}-AI`;
         const dateStr = new Date().toISOString().split('T')[0];
@@ -276,11 +311,11 @@ function initDashboard() {
         // Format Report HTML content
         const reportHTML = constructReportHTML(name, manager, deliverables, feedback, lessons, dateStr, sysId);
         
-        repProjTitle.innerText = name;
-        repProjManager.innerText = manager;
-        repProjId.innerText = sysId;
-        repProjDate.innerText = dateStr;
-        reportTextContainer.innerHTML = reportHTML;
+        if (repProjTitle) repProjTitle.innerText = name;
+        if (repProjManager) repProjManager.innerText = manager;
+        if (repProjId) repProjId.innerText = sysId;
+        if (repProjDate) repProjDate.innerText = dateStr;
+        if (reportTextContainer) reportTextContainer.innerHTML = reportHTML;
 
         // Save report into active workspace state
         activeReport = {
@@ -362,82 +397,94 @@ function initDashboard() {
 
     // Side Actions Unlocker
     function unlockSidebarActions() {
-        copyBtn.disabled = false;
-        exportPdfBtn.disabled = false;
-        regenerateBtn.disabled = false;
-        ratingWidget.classList.remove('disabled-block');
+        if (copyBtn) copyBtn.disabled = false;
+        if (exportPdfBtn) exportPdfBtn.disabled = false;
+        if (regenerateBtn) regenerateBtn.disabled = false;
+        if (ratingWidget) ratingWidget.classList.remove('disabled-block');
     }
 
     // Rating star handler
-    const starButtons = starContainer.querySelectorAll('.star-btn');
-    starButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const value = parseInt(btn.getAttribute('data-value'), 10);
-            selectedRatingValue = value;
-            highlightStars(value);
-        });
-    });
-
-    function highlightStars(value) {
+    if (starContainer) {
+        const starButtons = starContainer.querySelectorAll('.star-btn');
         starButtons.forEach(btn => {
-            const starValue = parseInt(btn.getAttribute('data-value'), 10);
-            if (starValue <= value) {
-                btn.classList.add('active-star');
-            } else {
-                btn.classList.remove('active-star');
-            }
+            btn.addEventListener('click', () => {
+                const value = parseInt(btn.getAttribute('data-value'), 10);
+                selectedRatingValue = value;
+                highlightStars(value);
+            });
         });
+
+        highlightStars = function(value) {
+            starButtons.forEach(btn => {
+                const starValue = parseInt(btn.getAttribute('data-value'), 10);
+                if (starValue <= value) {
+                    btn.classList.add('active-star');
+                } else {
+                    btn.classList.remove('active-star');
+                }
+            });
+        };
     }
 
     function resetRatingWidget() {
         selectedRatingValue = 0;
-        highlightStars(0);
-        ratingCommentInput.value = '';
+        if (starContainer) {
+            const starButtons = starContainer.querySelectorAll('.star-btn');
+            starButtons.forEach(btn => btn.classList.remove('active-star'));
+        }
+        if (ratingCommentInput) ratingCommentInput.value = '';
     }
 
     // Submit rating event
-    submitRatingBtn.addEventListener('click', () => {
-        if (!activeReport) return;
-        if (selectedRatingValue === 0) {
-            showToast("Please select a star rating first.", "error");
-            return;
-        }
+    if (submitRatingBtn) {
+        submitRatingBtn.addEventListener('click', () => {
+            if (!activeReport) return;
+            if (selectedRatingValue === 0) {
+                showToast("Please select a star rating first.", "error");
+                return;
+            }
 
-        // Find and update report in array
-        const reportIndex = reportsHistory.findIndex(r => r.id === activeReport.id);
-        if (reportIndex !== -1) {
-            reportsHistory[reportIndex].rating = selectedRatingValue;
-            reportsHistory[reportIndex].ratingComment = ratingCommentInput.value.trim();
-            
-            localStorage.setItem('brandsparkx_reports_history', JSON.stringify(reportsHistory));
-            
-            // Show toast message
-            showToast("Thank you for your quality feedback.", "success");
-            
-            // Update analytics display
-            updateAnalytics();
-        }
-    });
+            // Find and update report in array
+            const reportIndex = reportsHistory.findIndex(r => r.id === activeReport.id);
+            if (reportIndex !== -1) {
+                reportsHistory[reportIndex].rating = selectedRatingValue;
+                reportsHistory[reportIndex].ratingComment = ratingCommentInput?.value.trim() || "";
+                
+                localStorage.setItem('brandsparkx_reports_history', JSON.stringify(reportsHistory));
+                
+                // Show toast message
+                showToast("Thank you for your quality feedback.", "success");
+                
+                // Update analytics display
+                updateAnalytics();
+            }
+        });
+    }
 
     // Copy To Clipboard Handler
-    copyBtn.addEventListener('click', () => {
-        if (!activeReport) return;
-        const text = reportTextContainer.innerText;
-        navigator.clipboard.writeText(text).then(() => {
-            showToast("Report plain text copied to clipboard.", "success");
-        }).catch(() => {
-            showToast("Failed to copy report text.", "error");
+    if (copyBtn) {
+        copyBtn.addEventListener('click', () => {
+            if (!activeReport || !reportTextContainer) return;
+            const text = reportTextContainer.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast("Report plain text copied to clipboard.", "success");
+            }).catch(() => {
+                showToast("Failed to copy report text.", "error");
+            });
         });
-    });
+    }
 
     // Export PDF Print trigger
-    exportPdfBtn.addEventListener('click', () => {
-        if (!activeReport) return;
-        window.print();
-    });
+    if (exportPdfBtn) {
+        exportPdfBtn.addEventListener('click', () => {
+            if (!activeReport) return;
+            window.print();
+        });
+    }
 
     // Render History sidebar items
     function renderHistory() {
+        if (!historyContainer) return;
         historyContainer.innerHTML = '';
         
         if (reportsHistory.length === 0) {
@@ -473,10 +520,12 @@ function initDashboard() {
 
             // Delete item handler
             const deleteBtn = historyItem.querySelector('.h-delete-btn');
-            deleteBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                deleteReport(item.id);
-            });
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteReport(item.id);
+                });
+            }
 
             historyContainer.appendChild(historyItem);
         });
@@ -491,32 +540,44 @@ function initDashboard() {
         highlightActiveHistoryItem(item.id);
         
         // Fill form fields with inputs
-        document.getElementById('project-name').value = item.name;
-        document.getElementById('project-manager').value = item.manager;
-        document.getElementById('project-deliverables').value = item.deliverables;
-        document.getElementById('client-feedback').value = item.feedback;
-        document.getElementById('lessons-learned').value = item.lessons;
+        const nameEl = document.getElementById('project-name');
+        const managerEl = document.getElementById('project-manager');
+        const deliverablesEl = document.getElementById('project-deliverables');
+        const feedbackEl = document.getElementById('client-feedback');
+        const lessonsEl = document.getElementById('lessons-learned');
+
+        if (nameEl) nameEl.value = item.name;
+        if (managerEl) managerEl.value = item.manager;
+        if (deliverablesEl) deliverablesEl.value = item.deliverables;
+        if (feedbackEl) feedbackEl.value = item.feedback;
+        if (lessonsEl) lessonsEl.value = item.lessons;
 
         // Trigger character counter updates manually
-        document.getElementById('count-deliverables').innerText = `${item.deliverables.length} characters`;
-        document.getElementById('count-feedback').innerText = `${item.feedback.length} characters`;
-        document.getElementById('count-lessons').innerText = `${item.lessons.length} characters`;
+        const countDeliv = document.getElementById('count-deliverables');
+        const countFeed = document.getElementById('count-feedback');
+        const countLess = document.getElementById('count-lessons');
+
+        if (countDeliv) countDeliv.innerText = `${item.deliverables.length} characters`;
+        if (countFeed) countFeed.innerText = `${item.feedback.length} characters`;
+        if (countLess) countLess.innerText = `${item.lessons.length} characters`;
 
         // Switch to ready state
-        statePreGen.style.display = 'none';
-        stateGenerating.style.display = 'none';
-        stateError.style.display = 'none';
-        stateReportReady.style.display = 'flex';
+        if (statePreGen) statePreGen.style.display = 'none';
+        if (stateGenerating) stateGenerating.style.display = 'none';
+        if (stateError) stateError.style.display = 'none';
+        if (stateReportReady) stateReportReady.style.display = 'flex';
 
         // Load meta & report content
-        repProjTitle.innerText = item.name;
-        repProjManager.innerText = item.manager;
-        repProjId.innerText = item.sysId;
-        repProjDate.innerText = item.date;
-        reportTextContainer.innerHTML = item.htmlContent;
+        if (repProjTitle) repProjTitle.innerText = item.name;
+        if (repProjManager) repProjManager.innerText = item.manager;
+        if (repProjId) repProjId.innerText = item.sysId;
+        if (repProjDate) repProjDate.innerText = item.date;
+        if (reportTextContainer) reportTextContainer.innerHTML = item.htmlContent;
         
-        reportStatusTag.innerText = "Completed";
-        reportStatusTag.className = "status-badge status-success";
+        if (reportStatusTag) {
+            reportStatusTag.innerText = "Completed";
+            reportStatusTag.className = "status-badge status-success";
+        }
 
         // Unlock options and pre-fill rating
         unlockSidebarActions();
@@ -524,12 +585,15 @@ function initDashboard() {
         
         if (item.rating > 0) {
             selectedRatingValue = item.rating;
-            highlightStars(item.rating);
-            ratingCommentInput.value = item.ratingComment || '';
+            if (typeof highlightStars === 'function') {
+                highlightStars(item.rating);
+            }
+            if (ratingCommentInput) ratingCommentInput.value = item.ratingComment || '';
         }
         
         // Scroll workspace panel to top
-        document.getElementById('output-viewer-screen').scrollTop = 0;
+        const viewerScreen = document.getElementById('output-viewer-screen');
+        if (viewerScreen) viewerScreen.scrollTop = 0;
     }
 
     function deleteReport(id) {
@@ -542,16 +606,18 @@ function initDashboard() {
         // Reset output panel if deleted active report
         if (activeReport && activeReport.id === id) {
             activeReport = null;
-            stateReportReady.style.display = 'none';
-            statePreGen.style.display = 'flex';
-            reportStatusTag.innerText = "Ready";
-            reportStatusTag.className = "status-badge status-idle";
+            if (stateReportReady) stateReportReady.style.display = 'none';
+            if (statePreGen) statePreGen.style.display = 'flex';
+            if (reportStatusTag) {
+                reportStatusTag.innerText = "Ready";
+                reportStatusTag.className = "status-badge status-idle";
+            }
             
             // Lock action buttons
-            copyBtn.disabled = true;
-            exportPdfBtn.disabled = true;
-            regenerateBtn.disabled = true;
-            ratingWidget.classList.add('disabled-block');
+            if (copyBtn) copyBtn.disabled = true;
+            if (exportPdfBtn) exportPdfBtn.disabled = true;
+            if (regenerateBtn) regenerateBtn.disabled = true;
+            if (ratingWidget) ratingWidget.classList.add('disabled-block');
             resetRatingWidget();
         }
         
@@ -581,27 +647,31 @@ function initDashboard() {
         const totalCount = reportsHistory.length;
 
         if (totalCount === 0) {
-            totalReportsCard.innerText = "--";
-            avgRatingCard.innerText = "--";
-            feedbackRateCard.innerText = "--";
-            activePmsCard.innerText = "--";
+            if (totalReportsCard) totalReportsCard.innerText = "--";
+            if (avgRatingCard) avgRatingCard.innerText = "--";
+            if (feedbackRateCard) feedbackRateCard.innerText = "--";
+            if (activePmsCard) activePmsCard.innerText = "--";
             
             // Render default empty state structures
-            ratingPlaceholder.innerHTML = `
-                <div class="empty-state-box">
-                    <i data-lucide="award"></i>
-                    <p>No quality rating data available.</p>
-                    <span class="sub-placeholder">Submit ratings in the workspace sidebar to display metrics.</span>
-                </div>
-            `;
+            if (ratingPlaceholder) {
+                ratingPlaceholder.innerHTML = `
+                    <div class="empty-state-box">
+                        <i data-lucide="award"></i>
+                        <p>No quality rating data available.</p>
+                        <span class="sub-placeholder">Submit ratings in the workspace sidebar to display metrics.</span>
+                    </div>
+                `;
+            }
             
-            chartPlaceholder.innerHTML = `
-                <div class="empty-state-box">
-                    <i data-lucide="trending-up"></i>
-                    <p>Awaiting report volume trends...</p>
-                    <span class="sub-placeholder">Monthly trends and generation velocity charts will populate here when closure reports are saved.</span>
-                </div>
-            `;
+            if (chartPlaceholder) {
+                chartPlaceholder.innerHTML = `
+                    <div class="empty-state-box">
+                        <i data-lucide="trending-up"></i>
+                        <p>Awaiting report volume trends...</p>
+                        <span class="sub-placeholder">Monthly trends and generation velocity charts will populate here when closure reports are saved.</span>
+                    </div>
+                `;
+            }
             lucide.createIcons();
             return;
         }
@@ -610,13 +680,11 @@ function initDashboard() {
         const ratedReports = reportsHistory.filter(r => r.rating > 0);
         const ratedCount = ratedReports.length;
         let avgRatingText = "--";
-        let ratingPercentageText = "--";
         
         if (ratedCount > 0) {
             const sumRating = ratedReports.reduce((sum, r) => sum + r.rating, 0);
             const avgRating = (sumRating / ratedCount).toFixed(1);
             avgRatingText = `${avgRating} / 5.0`;
-            ratingPercentageText = `${Math.round((avgRating / 5) * 100)}%`;
         }
 
         // Calculate unique Active Project Managers
@@ -626,95 +694,141 @@ function initDashboard() {
         const feedbackRate = totalCount > 0 ? `${Math.round((ratedCount / totalCount) * 100)}%` : "--";
 
         // Display results
-        totalReportsCard.innerText = totalCount;
-        avgRatingCard.innerText = avgRatingText;
-        feedbackRateCard.innerText = feedbackRate;
-        activePmsCard.innerText = uniquePMs.size;
+        if (totalReportsCard) totalReportsCard.innerText = totalCount;
+        if (avgRatingCard) avgRatingCard.innerText = avgRatingText;
+        if (feedbackRateCard) feedbackRateCard.innerText = feedbackRate;
+        if (activePmsCard) activePmsCard.innerText = uniquePMs.size;
 
         // Render Rating Distribution Graph Layout if data exists
-        if (ratedCount > 0) {
-            // Count distribution of stars
-            const counts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-            ratedReports.forEach(r => { counts[r.rating]++; });
+        if (ratingPlaceholder) {
+            if (ratedCount > 0) {
+                // Count distribution of stars
+                const counts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+                ratedReports.forEach(r => { counts[r.rating]++; });
 
-            let barsHTML = '';
-            for (let i = 5; i >= 1; i--) {
-                const pct = Math.round((counts[i] / ratedCount) * 100);
-                barsHTML += `
-                    <div class="rating-bar-row" style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; margin-bottom: 6px; color: var(--text-dark);">
-                        <span style="width: 45px; display: inline-flex; align-items: center; gap: 2px;">
-                            ${i} <i data-lucide="star" style="width: 12px; height: 12px; fill: #F59E0B; color: #F59E0B;"></i>
-                        </span>
-                        <div style="flex-grow: 1; height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
-                            <div style="width: ${pct}%; height: 100%; background: var(--primary-bg); border-radius: 4px;"></div>
+                let barsHTML = '';
+                for (let i = 5; i >= 1; i--) {
+                    const pct = Math.round((counts[i] / ratedCount) * 100);
+                    barsHTML += `
+                        <div class="rating-bar-row" style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; margin-bottom: 6px; color: var(--text-dark);">
+                            <span style="width: 45px; display: inline-flex; align-items: center; gap: 2px;">
+                                ${i} <i data-lucide="star" style="width: 12px; height: 12px; fill: #F59E0B; color: #F59E0B;"></i>
+                            </span>
+                            <div style="flex-grow: 1; height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
+                                <div style="width: ${pct}%; height: 100%; background: var(--primary-bg); border-radius: 4px;"></div>
+                            </div>
+                            <span style="width: 30px; text-align: right; color: var(--text-muted); font-size: 0.72rem;">${pct}%</span>
                         </div>
-                        <span style="width: 30px; text-align: right; color: var(--text-muted); font-size: 0.72rem;">${pct}%</span>
+                    `;
+                }
+
+                ratingPlaceholder.innerHTML = `
+                    <div class="rating-stats-active" style="width: 100%;">
+                        <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 16px;">
+                            <span style="font-size: 2.2rem; font-weight: 700; color: var(--primary-bg); line-height: 1;">${(ratedReports.reduce((sum, r) => sum + r.rating, 0) / ratedCount).toFixed(1)}</span>
+                            <span style="font-size: 0.88rem; color: var(--text-muted);">average rating out of ${ratedCount} logs</span>
+                        </div>
+                        ${barsHTML}
+                    </div>
+                `;
+            } else {
+                ratingPlaceholder.innerHTML = `
+                    <div class="empty-state-box">
+                        <i data-lucide="award"></i>
+                        <p>No ratings submitted yet.</p>
+                        <span class="sub-placeholder">Submit ratings in the workspace sidebar to display metrics.</span>
                     </div>
                 `;
             }
-
-            ratingPlaceholder.innerHTML = `
-                <div class="rating-stats-active" style="width: 100%;">
-                    <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 16px;">
-                        <span style="font-size: 2.2rem; font-weight: 700; color: var(--primary-bg); line-height: 1;">${(ratedReports.reduce((sum, r) => sum + r.rating, 0) / ratedCount).toFixed(1)}</span>
-                        <span style="font-size: 0.88rem; color: var(--text-muted);">average rating out of ${ratedCount} logs</span>
-                    </div>
-                    ${barsHTML}
-                </div>
-            `;
-        } else {
-            ratingPlaceholder.innerHTML = `
-                <div class="empty-state-box">
-                    <i data-lucide="award"></i>
-                    <p>No ratings submitted yet.</p>
-                    <span class="sub-placeholder">Submit ratings in the workspace sidebar to display metrics.</span>
-                </div>
-            `;
         }
 
         // Render generation trends placeholder (Dynamic Bar chart representation)
-        // Group by Date for unique trends
-        const dateGroups = {};
-        reportsHistory.forEach(r => {
-            dateGroups[r.date] = (dateGroups[r.date] || 0) + 1;
-        });
-        
-        const sortedDates = Object.keys(dateGroups).sort().slice(-7); // last 7 days
-
-        if (sortedDates.length > 0) {
-            const maxVal = Math.max(...Object.values(dateGroups));
-            let chartBarsHTML = '';
+        if (chartPlaceholder) {
+            const dateGroups = {};
+            reportsHistory.forEach(r => {
+                dateGroups[r.date] = (dateGroups[r.date] || 0) + 1;
+            });
             
-            sortedDates.forEach(date => {
-                const count = dateGroups[date];
-                const heightPct = Math.max(10, Math.round((count / maxVal) * 100));
-                const shortDate = date.split('-').slice(1).join('/'); // MM/DD
-                chartBarsHTML += `
-                    <div style="display: flex; flex-direction: column; align-items: center; flex-grow: 1; height: 100%; justify-content: flex-end; gap: 8px;">
-                        <span style="font-size: 0.75rem; font-weight: 600; color: var(--primary-bg);">${count}</span>
-                        <div style="width: 24px; height: ${heightPct}%; background-color: var(--primary-bg); border-radius: 4px 4px 0 0; transition: height 0.3s ease;"></div>
-                        <span style="font-size: 0.7rem; color: var(--text-muted); white-space: nowrap;">${shortDate}</span>
+            const sortedDates = Object.keys(dateGroups).sort().slice(-7); // last 7 days
+
+            if (sortedDates.length > 0) {
+                const maxVal = Math.max(...Object.values(dateGroups));
+                let chartBarsHTML = '';
+                
+                sortedDates.forEach(date => {
+                    const count = dateGroups[date];
+                    const heightPct = Math.max(10, Math.round((count / maxVal) * 100));
+                    const shortDate = date.split('-').slice(1).join('/'); // MM/DD
+                    chartBarsHTML += `
+                        <div style="display: flex; flex-direction: column; align-items: center; flex-grow: 1; height: 100%; justify-content: flex-end; gap: 8px;">
+                            <span style="font-size: 0.75rem; font-weight: 600; color: var(--primary-bg);">${count}</span>
+                            <div style="width: 24px; height: ${heightPct}%; background-color: var(--primary-bg); border-radius: 4px 4px 0 0; transition: height 0.3s ease;"></div>
+                            <span style="font-size: 0.7rem; color: var(--text-muted); white-space: nowrap;">${shortDate}</span>
+                        </div>
+                    `;
+                });
+
+                chartPlaceholder.innerHTML = `
+                    <div style="width: 100%; height: 160px; display: flex; align-items: flex-end; justify-content: space-around; padding-top: 10px; border-bottom: 1px solid var(--border-color-light);">
+                        ${chartBarsHTML}
                     </div>
                 `;
-            });
-
-            chartPlaceholder.innerHTML = `
-                <div style="width: 100%; height: 160px; display: flex; align-items: flex-end; justify-content: space-around; padding-top: 10px; border-bottom: 1px solid var(--border-color-light);">
-                    ${chartBarsHTML}
-                </div>
-            `;
-        } else {
-            chartPlaceholder.innerHTML = `
-                <div class="empty-state-box">
-                    <i data-lucide="trending-up"></i>
-                    <p>Awaiting report volume trends...</p>
-                    <span class="sub-placeholder">Monthly trends and generation velocity charts will populate here when closure reports are saved.</span>
-                </div>
-            `;
+            } else {
+                chartPlaceholder.innerHTML = `
+                    <div class="empty-state-box">
+                        <i data-lucide="trending-up"></i>
+                        <p>Awaiting report volume trends...</p>
+                        <span class="sub-placeholder">Monthly trends and generation velocity charts will populate here when closure reports are saved.</span>
+                    </div>
+                `;
+            }
         }
         
         lucide.createIcons();
     }
+
+    // Pre-populate with default sample reports if first time loading database
+    if (!reportsHistory || reportsHistory.length === 0) {
+        reportsHistory = [
+            {
+                id: 'report-sample-1',
+                name: 'API Cloud Synchronization',
+                manager: 'Jane Doe',
+                sysId: 'BSP-1082-AI',
+                date: '2026-06-10',
+                deliverables: '1. Implemented secure OAuth2 middleware validation protocol.\n2. Standardized JSON body error payloads across client routes.\n3. Reduced network latency by 18% with connection pooling.',
+                feedback: '"We saw immediate stability improvement. Synchronizing databases takes half the time. Excellent documentation on technical handoff specs."',
+                lessons: '1. Underestimated Docker container volume mounting complexities; documented fixes for local environments.',
+                htmlContent: '',
+                rating: 5,
+                ratingComment: 'Excellent structure and summary.'
+            },
+            {
+                id: 'report-sample-2',
+                name: 'CRM Customer Segment Audit',
+                manager: 'Marcus Vance',
+                sysId: 'BSP-3829-AI',
+                date: '2026-05-24',
+                deliverables: '1. Audited customer lead sources across 4 marketing channels.\n2. Structured audience segmentation weights inside CRM dashboard.\n3. Standardized telemetry event naming conventions.',
+                feedback: '"Click rates increased by 4% inside the first two weeks. Overall great output and clean insight checklist."',
+                lessons: '1. Access to departmental ledger data should be requested 2 weeks prior to start to prevent audit lead friction.',
+                htmlContent: '',
+                rating: 4,
+                ratingComment: 'Accurate insight extraction.'
+            }
+        ];
+        
+        // Generate the formatted report HTML content for sample reports
+        reportsHistory.forEach(item => {
+            item.htmlContent = constructReportHTML(item.name, item.manager, item.deliverables, item.feedback, item.lessons, item.date, item.sysId);
+        });
+        
+        localStorage.setItem('brandsparkx_reports_history', JSON.stringify(reportsHistory));
+    }
+
+    // Call them on initial load to populate history and analytics panels!
+    renderHistory();
+    updateAnalytics();
 }
 
 // --- BRANDSPARKX CONTACT FORM SUBMISSION ---
@@ -725,10 +839,15 @@ function initContactForm() {
     contactForm.addEventListener('submit', (e) => {
         e.preventDefault();
         
-        const name = document.getElementById('contact-name').value.trim();
-        const email = document.getElementById('contact-email').value.trim();
-        const subject = document.getElementById('contact-subject').value.trim();
-        const message = document.getElementById('contact-message').value.trim();
+        const nameEl = document.getElementById('contact-name');
+        const emailEl = document.getElementById('contact-email');
+        const subjectEl = document.getElementById('contact-subject');
+        const messageEl = document.getElementById('contact-message');
+
+        const name = nameEl?.value.trim() || "";
+        const email = emailEl?.value.trim() || "";
+        const subject = subjectEl?.value.trim() || "";
+        const message = messageEl?.value.trim() || "";
 
         if (!name || !email || !subject || !message) {
             showToast("All contact form fields are required.", "error");
@@ -737,14 +856,46 @@ function initContactForm() {
 
         // Simulate network submit
         const submitBtn = document.getElementById('contact-submit-btn');
-        submitBtn.disabled = true;
-        submitBtn.innerText = "Sending Message...";
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Sending Message...";
+        }
 
         setTimeout(() => {
             showToast("Message sent! Brandsparkx PMO support will contact you shortly.", "success");
             contactForm.reset();
-            submitBtn.disabled = false;
-            submitBtn.innerText = "Send Message";
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Send Message";
+            }
         }, 1200);
     });
+}
+
+// --- SECURED PMO LOGOUT SESSION HANDLER ---
+function initAuthLogout() {
+    const logoutBtn = document.getElementById('logout-btn');
+    const mobileLogoutBtn = document.getElementById('mobile-logout-btn');
+
+    const handleLogout = (e) => {
+        if (e) e.preventDefault();
+        
+        // Remove authentication states
+        sessionStorage.removeItem('brandsparkx_logged_in');
+        sessionStorage.removeItem('brandsparkx_user_email');
+        
+        showToast("Logged out successfully.", "success");
+        
+        // Redirect back to login using replace to avoid history backtracking
+        setTimeout(() => {
+            window.location.replace('login.html');
+        }, 500);
+    };
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', handleLogout);
+    }
+    if (mobileLogoutBtn) {
+        mobileLogoutBtn.addEventListener('click', handleLogout);
+    }
 }
